@@ -38,10 +38,11 @@ exports.deactivate = deactivate;
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = __importStar(require("vscode"));
+const LineChecker_1 = require("./LineChecker");
 const NUMBER_OF_CHARS = 12;
 let userCollection = new Object({});
 let playerData = {
-    point: 0,
+    points: 0,
     coins: 0,
     collection: userCollection
 };
@@ -58,13 +59,29 @@ function activate(context) {
         // The code you place here will be executed every time your command is executed
         // Display a message box to the user
         vscode.window.showInformationMessage('Hello World from GachaAmi!');
+        let lineChecker = new LineChecker_1.LineChecker([]);
         // For when the user is typing 
         vscode.workspace.onDidChangeTextDocument(async (change) => {
+            // Check if there's an error in the file (stops reading)
+            let diagnostics = vscode.languages.getDiagnostics().at(0)?.[1];
+            if (diagnostics && diagnostics.length > 0) {
+                return;
+            }
+            // get document
             let textDoc = change.document;
-            let text = textDoc.getText();
-            console.log(text);
-            console.log(textDoc.fileName);
-            context.globalState.update("textCount", text.length);
+            // Checks to see if it's a file that's not a txt/md/plain file.
+            let textFileName = textDoc.fileName.toLowerCase();
+            const fileCheck = [".md", ".txt"].some(x => textFileName.includes(x));
+            if (textFileName.includes(".") && !fileCheck) {
+                //gets the text and splits it
+                let text = textDoc.getText();
+                let textLines = text.split("\n");
+                console.log(textLines);
+                // function to check conditions for points and returns # of points, adds it to the 
+                lineChecker.setLines(textLines);
+                console.log(lineChecker.getValidLines());
+                context.globalState.update("points", playerData.points);
+            }
         });
     });
     const check = vscode.commands.registerCommand('gachaami.checkData', () => {
