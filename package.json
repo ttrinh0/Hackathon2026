@@ -16,6 +16,10 @@
       {
         "command": "gachaami.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "gachaami.checkData",
+        "title": "Check Data"
       }
     ]
   },
