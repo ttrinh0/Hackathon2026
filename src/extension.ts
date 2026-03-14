@@ -12,10 +12,14 @@ type Character = {
 	quantity: number;
 }
 
-let userCollection = new Object({
-
-});
-
+let userCollection = [
+	{
+		name: "Ami",
+		chance: 1,
+		img: "./images/char"
+		
+	}
+]
 
 let playerData = {
 	points: 0,
@@ -81,6 +85,8 @@ export function activate(context: vscode.ExtensionContext) {
 			console.log("none");
 		}
 	})
+
+
 
 	context.subscriptions.push(disposable);
 	context.subscriptions.push(check);

@@ -40,7 +40,13 @@ exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
 const LineChecker_1 = require("./LineChecker");
 const NUMBER_OF_CHARS = 12;
-let userCollection = new Object({});
+let userCollection = [
+    {
+        name: "Ami",
+        chance: 1,
+        img: "./images/char"
+    }
+];
 let playerData = {
     points: 0,
     coins: 0,
