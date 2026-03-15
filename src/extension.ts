@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 		playerData.saveData = true;
 		playerData.points = context.globalState.get("points") ?? 0;
 		playerData.collection = context.globalState.get("collection") ?? userCollection
-		console.log(userCollection)
+		userCollection = playerData.collection
 	}
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)

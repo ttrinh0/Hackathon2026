@@ -22,7 +22,7 @@ export class LineChecker {
     public getPoints(lines: string[]) {
         let points = 0;
         for (let i = 0; i < this.getValidLines(lines); i++) {
-            let amount = randomInt(5, 10)
+            let amount = randomInt(10, 30)
             points += amount;
         }
         return points
