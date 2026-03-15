@@ -15,12 +15,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "gachaami.helloWorld",
-        "title": "Hello World"
+        "command": "gachaami.startTracking",
+        "title": "Start Tracking"
       },
       {
-        "command": "gachaami.checkData",
-        "title": "Check Data"
+        "command": "gachaami.resetData",
+        "title": "Reset Data"
       }
     ]
   },

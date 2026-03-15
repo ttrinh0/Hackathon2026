@@ -21,7 +21,7 @@ class LineChecker {
     getPoints(lines) {
         let points = 0;
         for (let i = 0; i < this.getValidLines(lines); i++) {
-            let amount = (0, crypto_1.randomInt)(5, 15);
+            let amount = (0, crypto_1.randomInt)(5, 10);
             points += amount;
         }
         return points;

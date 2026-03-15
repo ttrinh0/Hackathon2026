@@ -12,7 +12,7 @@ type Character = {
 	quantity: number;
 }
 
-let userCollection = [
+let userCollection1 = [
 	{
 		name: "Ami",
 		chance: 1,
@@ -20,6 +20,10 @@ let userCollection = [
 
 	}
 ]
+
+let userCollection = Object({
+
+})
 
 let playerData = {
 	saveData: false,
@@ -31,6 +35,8 @@ let playerData = {
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+
+
 	if (context.globalState.get("saveData") === undefined) {
 		context.globalState.update("saveData", true);
 		context.globalState.update("points", playerData.points);
@@ -48,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('gachaami.helloWorld', () => {
+	const disposable = vscode.commands.registerCommand('gachaami.startTracking', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 
@@ -74,14 +80,15 @@ export function activate(context: vscode.ExtensionContext) {
 				//gets the text and splits it
 				let text = textDoc.getText();
 				let textLines = text.split("\n");
-				// console.log(textLines);
 
 				// function to check conditions for points and returns # of points, adds it to user data 
 				if (lineChecker.getNumberOfValidLines === 0) {
 					lineChecker.setInitialLines(textLines);
 				}
 				else {
+					// Checks if the player has made a new line
 					if (textLines[textLines.length - 1] == '') {
+						// this is when it checks for the points
 						let pointsGained = lineChecker.compareLines(textLines);
 						let currentPoints: number = context.globalState.get("points") ?? 0;
 						context.globalState.update("points", currentPoints + pointsGained)
@@ -93,15 +100,9 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 
-	const check = vscode.commands.registerCommand('gachaami.checkData', () => {
-		let textCount = context.globalState.get("textCount");
-		if (textCount) {
-			console.log(textCount);
-		} else {
-			console.log("none");
-		}
+	const check = vscode.commands.registerCommand('gachaami.resetData', () => {
+		context.globalState.update("saveData", undefined)
 	})
-
 
 
 	context.subscriptions.push(disposable);
