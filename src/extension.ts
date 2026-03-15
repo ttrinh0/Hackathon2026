@@ -4,8 +4,6 @@ import * as vscode from 'vscode';
 import { LineChecker } from './LineChecker';
 import { getWebviewContent } from './index';
 
-const NUMBER_OF_CHARS = 12;
-
 type Character = {
 	name: string;
 	img: string;
@@ -46,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 		playerData.saveData = true;
 		playerData.points = context.globalState.get("points") ?? 0;
 		playerData.collection = context.globalState.get("collection") ?? userCollection
-		userCollection = playerData.collection
+		userCollection = playerData.collection;
 	}
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -76,9 +74,10 @@ export function activate(context: vscode.ExtensionContext) {
 		panel.webview.postMessage({ command: 'updatePoints', points: playerData.points });
 		panel.webview.onDidReceiveMessage(
 			async message => {
-				if (message.command === 'spin') {
+				if (message.command === 'spin' && playerData.points >= 100) {
 					playerData.points -= 100;
 					context.globalState.update("points", playerData.points);
+
 					const spinGifUri = panel.webview.asWebviewUri(
 						vscode.Uri.joinPath(context.extensionUri, 'images', 'gachapon_spin.gif')
 					);
@@ -123,7 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
 			undefined,
 			context.subscriptions
 		);
-	
+
 		let lineChecker = new LineChecker([]);
 		// For when the user is typing 
 		vscode.workspace.onDidChangeTextDocument(async change => {
@@ -139,7 +138,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// Checks to see if it's a file that's not a txt/md/plain file.
 			let textFileName = textDoc.fileName.toLowerCase();
 			let fileType = vscode.window.activeTextEditor?.document.languageId
-			const fileCheck = ["plaintext", "markdown"].includes(fileType??"")
+			const fileCheck = ["plaintext", "markdown"].includes(fileType ?? "")
 			if (textFileName.includes(".") && !fileCheck) {
 				//gets the text and splits it
 				let text = textDoc.getText();
@@ -158,7 +157,7 @@ export function activate(context: vscode.ExtensionContext) {
 						let newPoints = currentPoints + pointsGained;
 						context.globalState.update("points", newPoints);
 						playerData.points = newPoints;
-						panel.webview.postMessage({ command: 'updatePoints', points: newPoints});
+						panel.webview.postMessage({ command: 'updatePoints', points: newPoints });
 						console.log(context.globalState.get("points"));
 					}
 				}
