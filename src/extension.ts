@@ -2,24 +2,30 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { LineChecker } from './LineChecker';
+import { getWebviewContent } from './index';
 
 const NUMBER_OF_CHARS = 12;
 
 type Character = {
 	name: string;
-	chance: number;
 	img: string;
 	quantity: number;
 }
 
-let userCollection1 = [
-	{
-		name: "Ami",
-		chance: 1,
-		img: "./images/char"
-
-	}
-]
+let userCollection: Character[] = [
+	{ name: "Ami", img: "char_ami.png", quantity: 0 },
+	{ name: "Blami", img: "char_blami.png", quantity: 0 },
+	{ name: "Cami", img: "char_cami.png", quantity: 0 },
+	{ name: "Dami", img: "char_dami.png", quantity: 0 },
+	{ name: "Guy", img: "char_guy.png", quantity: 0 },
+	{ name: "Jami", img: "char_jami.png", quantity: 0 },
+	{ name: "Lami", img: "char_lami.png", quantity: 0 },
+	{ name: "Pami", img: "char_pami.png", quantity: 0 },
+	{ name: "Rami", img: "char_rami.png", quantity: 0 },
+	{ name: "Tami", img: "char_tami.png", quantity: 0 },
+	{ name: "Xami", img: "char_xami.png", quantity: 0 },
+	{ name: "Yami", img: "char_yami.png", quantity: 0 }
+];
 
 let userCollection = Object({
 
@@ -29,7 +35,7 @@ let playerData = {
 	saveData: false,
 	points: 0,
 	collection: userCollection
-}
+};
 
 
 // This method is called when your extension is activated
@@ -59,6 +65,67 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
 
 		vscode.window.showInformationMessage('Hello World from GachaAmi!');
+		const panel = vscode.window.createWebviewPanel(
+			'gachaami', // Identifies the type of the webview. Used internally
+			'Gacha Ami', // Title of the panel displayed to the user
+			vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+			{
+				enableScripts: true,
+				localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'images')]
+			}
+		);
+		const imagesPath = vscode.Uri.joinPath(context.extensionUri, 'images', 'gachapon_main_balls.png');
+		const initialImage = panel.webview.asWebviewUri(imagesPath);
+		panel.webview.html = getWebviewContent(initialImage);
+		panel.webview.postMessage({ command: 'updatePoints', points: playerData.points });
+		panel.webview.onDidReceiveMessage(
+			async message => {
+				if (message.command === 'spin') {
+					playerData.points -= 100;
+
+					const spinGifUri = panel.webview.asWebviewUri(
+						vscode.Uri.joinPath(context.extensionUri, 'images', 'gachapon_spin.gif')
+					);
+
+					panel.webview.postMessage({ command: 'updateImage', url: spinGifUri.toString() });
+					panel.webview.postMessage({ command: 'updatePoints', points: playerData.points });
+
+					await new Promise(resolve => setTimeout(resolve, 2000));
+
+					const randomIndex = Math.floor(Math.random() * userCollection.length);
+					const winner = userCollection[randomIndex];
+					winner.quantity++;
+
+					const winnerUri = panel.webview.asWebviewUri(
+						vscode.Uri.joinPath(context.extensionUri, 'images', winner.img)
+					);
+
+					panel.webview.postMessage({
+						command: 'updateImage',
+						url: winnerUri.toString()
+					});
+
+					vscode.window.showInformationMessage(`You got ${winner.name}! Total: ${winner.quantity}`);
+				}
+
+				if (message.command === 'viewAmis') {
+					const collectionData = playerData.collection.map(char => ({
+						...char,
+						webviewUri: panel.webview.asWebviewUri(
+							vscode.Uri.joinPath(context.extensionUri, 'images', char.img)
+						).toString()
+					}));
+
+					panel.webview.postMessage({
+						command: 'displayCollection',
+						collection: collectionData
+					});
+				}
+			},
+			undefined,
+			context.subscriptions
+		);
+	
 		let lineChecker = new LineChecker([]);
 		// For when the user is typing 
 		vscode.workspace.onDidChangeTextDocument(async change => {
@@ -74,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Checks to see if it's a file that's not a txt/md/plain file.
 			let textFileName = textDoc.fileName.toLowerCase();
-			const fileCheck = [".md", ".txt"].some(x => textFileName.includes(x))
+			const fileCheck = [".md", ".txt"].some(x => textFileName.includes(x));
 			if (textFileName.includes(".") && !fileCheck) {
 
 				//gets the text and splits it
@@ -96,7 +163,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 				console.log(context.globalState.get("points"))
 			}
-		})
+		});
 	});
 
 
