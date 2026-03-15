@@ -1,12 +1,16 @@
+import { randomInt } from "crypto";
+
 export class LineChecker {
     constructor(
-        private lines: string[] = [],
+        private prevLines: string[] = [],
         private numberOfLines: number = 0
     ) {
     }
-    public setLines(lines: string[]): void {
-        this.lines = lines;
-        this.setTotalLines(lines.length);
+
+    public setInitialLines(lines: string[]): void {
+        this.prevLines = lines;
+        this.setTotalLines(this.getValidLines(this.prevLines));
+        this.getPoints(lines);
     }
 
     get getNumberOfValidLines(): number {
@@ -15,18 +19,26 @@ export class LineChecker {
 
     private setTotalLines(num: number): void { this.numberOfLines = num; }
 
-    public getValidLines(): number {
-
-        let lineCount = 0;
-        for (let i = 0; i < this.lines.length; i++) {
-            if (this.processLine(this.lines[i]))
-                lineCount++
+    public getPoints(lines: string[]) {
+        let points = 0;
+        for (let i = 0; i < this.getValidLines(lines); i++) {
+            let amount = randomInt(5, 10)
+            points += amount;
         }
-        return lineCount;
-
+        return points
     }
 
-    public processLine(line: string): boolean {
+    public getValidLines(lines: string[]): number {
+        let lineCount = 0;
+        for (let i = 0; i < lines.length; i++) {
+            if (this.processLine(lines[i])) {
+                lineCount++
+            }
+        }
+        return lineCount;
+    }
+
+    private processLine(line: string): boolean {
         let brackets = "[]{}()";
 
         if (line.trim().length === 0)
@@ -40,5 +52,20 @@ export class LineChecker {
         return true;
     }
 
+    public compareLines(lines: string[]): number {
+        let newLines = lines;
+        let uniqueNew: string[] = [];
+        newLines.forEach(line => {
+            if (!this.prevLines.includes(line)) {
+                uniqueNew = uniqueNew.concat(line);
+            }
+        });
+        this.prevLines = newLines;
+        return this.getPoints(uniqueNew);
+        //current lines --> old lines
+        // check to see if new current lines are in old lines
+        // return list of line changes
+        // this is what gets passed into points
+    }
 
 }
