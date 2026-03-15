@@ -3,6 +3,7 @@
   "displayName": "GachaAmi",
   "description": "Collect them all",
   "version": "0.0.1",
+  "publisher": "Yay",
   "repository": "https://github.com/ttrinh0/Hackathon2026",
   "engines": {
     "vscode": "^1.110.0"
