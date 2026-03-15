@@ -27,10 +27,6 @@ let userCollection: Character[] = [
 	{ name: "Yami", img: "char_yami.png", quantity: 0 }
 ];
 
-let userCollection = Object({
-
-})
-
 let playerData = {
 	saveData: false,
 	points: 0,
@@ -42,11 +38,10 @@ let playerData = {
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-
 	if (context.globalState.get("saveData") === undefined) {
 		context.globalState.update("saveData", true);
-		context.globalState.update("points", playerData.points);
-		context.globalState.update("collection", playerData.collection);
+		context.globalState.update("points", 0);
+		context.globalState.update("collection", userCollection);
 	} else {
 		playerData.saveData = true;
 		playerData.points = context.globalState.get("points") ?? 0;
@@ -60,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('gachaami.startTracking', () => {
+	const disposable = vscode.commands.registerCommand('gachaami.startTrackingPoints', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 
@@ -82,7 +77,8 @@ export function activate(context: vscode.ExtensionContext) {
 			async message => {
 				if (message.command === 'spin') {
 					playerData.points -= 100;
-
+					let currentPoints: number = context.globalState.get("points") ?? 0
+					context.globalState.update("points", currentPoints - 100);
 					const spinGifUri = panel.webview.asWebviewUri(
 						vscode.Uri.joinPath(context.extensionUri, 'images', 'gachapon_spin.gif')
 					);
@@ -95,6 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
 					const randomIndex = Math.floor(Math.random() * userCollection.length);
 					const winner = userCollection[randomIndex];
 					winner.quantity++;
+					context.globalState.update("collection", userCollection);
 
 					const winnerUri = panel.webview.asWebviewUri(
 						vscode.Uri.joinPath(context.extensionUri, 'images', winner.img)
@@ -129,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
 		let lineChecker = new LineChecker([]);
 		// For when the user is typing 
 		vscode.workspace.onDidChangeTextDocument(async change => {
-
+			console.log(context.globalState.get("points"));
 			// Check if there's an error in the file (stops reading)
 			let diagnostics = vscode.languages.getDiagnostics().at(0)?.[1];
 			if (diagnostics && diagnostics.length > 0) {
@@ -158,10 +155,14 @@ export function activate(context: vscode.ExtensionContext) {
 						// this is when it checks for the points
 						let pointsGained = lineChecker.compareLines(textLines);
 						let currentPoints: number = context.globalState.get("points") ?? 0;
-						context.globalState.update("points", currentPoints + pointsGained)
+						let newPoints = currentPoints + pointsGained;
+						context.globalState.update("points", newPoints);
+						playerData.points = newPoints;
+						panel.webview.postMessage({ command: 'updatePoints', points: newPoints});
+						console.log(context.globalState.get("points"));
 					}
 				}
-				console.log(context.globalState.get("points"))
+
 			}
 		});
 	});

@@ -15,12 +15,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "gachaami.startTracking",
-        "title": "Start Tracking"
+        "command": "gachaami.startTrackingPoints",
+        "title": "Gacha Ami: Start Tracking"
       },
       {
         "command": "gachaami.resetData",
-        "title": "Reset Data"
+        "title": "Gacha Ami: Reset Data"
       }
     ]
   },

@@ -62,10 +62,6 @@ export class LineChecker {
         });
         this.prevLines = newLines;
         return this.getPoints(uniqueNew);
-        //current lines --> old lines
-        // check to see if new current lines are in old lines
-        // return list of line changes
-        // this is what gets passed into points
     }
 
 }
