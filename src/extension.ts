@@ -28,7 +28,7 @@ let userCollection: Character[] = [
 ];
 
 let playerData = {
-	points: 0,
+	points: 300,
 	coins: 0,
 	collection: userCollection
 };
@@ -91,6 +91,20 @@ export function activate(context: vscode.ExtensionContext) {
 					});
 
 					vscode.window.showInformationMessage(`You got ${winner.name}! Total: ${winner.quantity}`);
+				}
+
+				if (message.command === 'viewAmis') {
+					const collectionData = playerData.collection.map(char => ({
+						...char,
+						webviewUri: panel.webview.asWebviewUri(
+							vscode.Uri.joinPath(context.extensionUri, 'images', char.img)
+						).toString()
+					}));
+
+					panel.webview.postMessage({
+						command: 'displayCollection',
+						collection: collectionData
+					});
 				}
 			},
 			undefined,
