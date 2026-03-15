@@ -48,13 +48,23 @@ let userCollection = [
     }
 ];
 let playerData = {
+    saveData: false,
     points: 0,
-    coins: 0,
     collection: userCollection
 };
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 function activate(context) {
+    if (context.globalState.get("saveData") === undefined) {
+        context.globalState.update("saveData", true);
+        context.globalState.update("points", playerData.points);
+        context.globalState.update("collection", playerData.collection);
+    }
+    else {
+        playerData.saveData = true;
+        playerData.points = context.globalState.get("points") ?? 0;
+        playerData.collection = context.globalState.get("collection") ?? userCollection;
+    }
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "gachaami" is now active!');
@@ -82,11 +92,19 @@ function activate(context) {
                 //gets the text and splits it
                 let text = textDoc.getText();
                 let textLines = text.split("\n");
-                console.log(textLines);
-                // function to check conditions for points and returns # of points, adds it to the 
-                lineChecker.setLines(textLines);
-                console.log(lineChecker.getValidLines());
-                context.globalState.update("points", playerData.points);
+                // console.log(textLines);
+                // function to check conditions for points and returns # of points, adds it to user data 
+                if (lineChecker.getNumberOfValidLines === 0) {
+                    lineChecker.setInitialLines(textLines);
+                }
+                else {
+                    if (textLines[textLines.length - 1] == '') {
+                        let pointsGained = lineChecker.compareLines(textLines);
+                        let currentPoints = context.globalState.get("points") ?? 0;
+                        context.globalState.update("points", currentPoints + pointsGained);
+                    }
+                }
+                console.log(context.globalState.get("points"));
             }
         });
     });
